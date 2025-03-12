@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, ExternalLink } from "lucide-react";
+import { Search, InfoIcon, CheckCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Card,
@@ -11,13 +11,20 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface KnowledgeBase {
   id: string;
   title: string;
   description: string;
-  image: string;
+  logo: string;
   status: "subscribed" | "coming_soon";
   authority: string;
 }
@@ -25,6 +32,53 @@ interface KnowledgeBase {
 const MarketplaceUI: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [knowledgeBases, setKnowledgeBases] = useState<KnowledgeBase[]>([
+    {
+      id: "1",
+      title: "VARA Rulebook",
+      description:
+        "Comprehensive regulations from the Virtual Assets Regulatory Authority (VARA) for virtual assets in Dubai.",
+      logo: "/logos/vara-logo.svg",
+      status: "coming_soon",
+      authority: "VARA",
+    },
+    {
+      id: "2",
+      title: "Central Bank UAE Regulations",
+      description:
+        "Official regulatory framework and guidelines from the UAE Central Bank.",
+      logo: "/logos/central-bank-logo.svg",
+      status: "coming_soon",
+      authority: "Central Bank UAE",
+    },
+    {
+      id: "3",
+      title: "DFSA Rulebook",
+      description:
+        "Dubai Financial Services Authority comprehensive rules and regulations for the DIFC.",
+      logo: "/logos/dfsa-logo.svg",
+      status: "coming_soon",
+      authority: "DFSA",
+    },
+    {
+      id: "4",
+      title: "SCA Regulations",
+      description:
+        "Securities and Commodities Authority guidelines for financial markets in the UAE.",
+      logo: "/logos/sca-logo.svg",
+      status: "coming_soon",
+      authority: "SCA",
+    },
+    {
+      id: "5",
+      title: "ADGM Rulebook",
+      description:
+        "Abu Dhabi Global Market financial regulations and legal framework.",
+      logo: "/logos/adgm-logo.svg",
+      status: "coming_soon",
+      authority: "ADGM",
+    },
+  ]);
 
   // Simulate loading state
   useEffect(() => {
@@ -34,61 +88,31 @@ const MarketplaceUI: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const knowledgeBases: KnowledgeBase[] = [
-    {
-      id: "1",
-      title: "VARA Rulebook",
-      description:
-        "Comprehensive regulations from the Virtual Assets Regulatory Authority (VARA) for virtual assets in Dubai.",
-      image: "/images/vara.png",
-      status: "subscribed",
-      authority: "VARA",
-    },
-    {
-      id: "2",
-      title: "Central Bank UAE Regulations",
-      description:
-        "Official regulatory framework and guidelines from the UAE Central Bank.",
-      image: "/images/central-bank.png",
-      status: "subscribed",
-      authority: "Central Bank UAE",
-    },
-    {
-      id: "3",
-      title: "DFSA Rulebook",
-      description:
-        "Dubai Financial Services Authority comprehensive rules and regulations for the DIFC.",
-      image: "/images/dfsa.png",
-      status: "subscribed",
-      authority: "DFSA",
-    },
-    {
-      id: "4",
-      title: "SCA Regulations",
-      description:
-        "Securities and Commodities Authority guidelines for financial markets in the UAE.",
-      image: "/images/sca.png",
-      status: "coming_soon",
-      authority: "SCA",
-    },
-    {
-      id: "5",
-      title: "ADGM Rulebook",
-      description:
-        "Abu Dhabi Global Market financial regulations and legal framework.",
-      image: "/images/adgm.png",
-      status: "coming_soon",
-      authority: "ADGM",
-    },
-  ];
+  // Commented out toggle functionality for future implementation
+  /*
+  const handleSubscriptionToggle = (id: string) => {
+    setKnowledgeBases(
+      knowledgeBases.map((kb) =>
+        kb.id === id
+          ? {
+              ...kb,
+              status:
+                kb.status === "subscribed" ? "coming_soon" : "subscribed",
+            }
+          : kb
+      )
+    );
+  };
+  */
 
   const filteredKnowledgeBases = knowledgeBases.filter(
     (kb) =>
       kb.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       kb.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      kb.authority.toLowerCase().includes(searchQuery.toLowerCase()),
+      kb.authority.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Animation variants
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -108,7 +132,7 @@ const MarketplaceUI: React.FC = () => {
     return (
       <div className="container mx-auto py-8 flex justify-center items-center h-[70vh]">
         <div className="flex flex-col items-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
           <p className="mt-4 text-muted-foreground">Loading marketplace...</p>
         </div>
       </div>
@@ -150,55 +174,79 @@ const MarketplaceUI: React.FC = () => {
         {filteredKnowledgeBases.map((kb) => (
           <motion.div key={kb.id} variants={item}>
             <Card className="overflow-hidden h-full border border-muted-foreground/20 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col">
-              <div className="h-48 overflow-hidden relative">
-                <img
-                  src={kb.image}
-                  alt={kb.title}
-                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                  onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                    e.currentTarget.src =
-                      "https://placehold.co/600x400?text=Authority+Image";
-                  }}
-                />
-                <div className="absolute top-3 right-3">
-                  <Badge
-                    variant={
-                      kb.status === "subscribed" ? "success" : "secondary"
-                    }
-                    className="font-medium shadow-sm"
-                  >
-                    {kb.status === "subscribed" ? "Subscribed" : "Coming Soon"}
-                  </Badge>
-                </div>
-              </div>
               <CardHeader className="p-5 pb-0">
-                <div className="flex justify-between items-start">
-                  <h4 className="font-semibold text-lg">{kb.title}</h4>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    {/* Logo instead of image */}
+                    <div className="w-10 h-10 flex items-center justify-center rounded-full bg-primary/10">
+                      <img
+                        src={kb.logo}
+                        alt={`${kb.authority} logo`}
+                        className="w-6 h-6 object-contain"
+                        onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                          // Fallback to initials if logo fails to load
+                          e.currentTarget.style.display = "none";
+                          e.currentTarget.nextSibling!.classList.remove("hidden");
+                        }}
+                      />
+                      <span className="hidden text-sm font-bold text-primary">
+                        {kb.authority.split(" ").map(word => word[0]).join("")}
+                      </span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-lg">{kb.title}</h4>
+                      <p className="text-xs text-muted-foreground font-medium">
+                        {kb.authority}
+                      </p>
+                    </div>
+                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <InfoIcon className="h-4 w-4 text-muted-foreground cursor-pointer" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="w-64">{kb.description}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
-                <p className="text-xs text-muted-foreground font-medium mt-1">
-                  {kb.authority}
-                </p>
               </CardHeader>
               <CardContent className="p-5 pt-3 flex-grow">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground line-clamp-3">
                   {kb.description}
                 </p>
               </CardContent>
               <CardFooter className="p-5 pt-0">
-                <Button
-                  variant={kb.status === "subscribed" ? "outline" : "default"}
-                  className="w-full transition-all duration-200 hover:scale-[1.02]"
-                  disabled={kb.status === "coming_soon"}
-                >
-                  {kb.status === "subscribed" ? (
-                    <>
-                      View Knowledge Base{" "}
-                      <ExternalLink className="ml-2 h-4 w-4" />
-                    </>
-                  ) : (
-                    "Notify Me"
-                  )}
-                </Button>
+                <div className="w-full flex items-center justify-between">
+                  <Badge variant="secondary" className="font-medium">
+                    Coming Soon
+                  </Badge>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="text-xs"
+                  >
+                    Notify Me
+                  </Button>
+                  {/* Subscription toggle functionality for future implementation
+                  <span className="text-sm font-medium">
+                    {kb.status === "subscribed" ? (
+                      <span className="flex items-center text-green-600">
+                        <CheckCircle className="h-4 w-4 mr-1.5" />
+                        Subscribed
+                      </span>
+                    ) : (
+                      "Not subscribed"
+                    )}
+                  </span>
+                  <Switch
+                    checked={kb.status === "subscribed"}
+                    onCheckedChange={() => handleSubscriptionToggle(kb.id)}
+                    aria-label={`Toggle subscription for ${kb.title}`}
+                  />
+                  */}
+                </div>
               </CardFooter>
             </Card>
           </motion.div>
